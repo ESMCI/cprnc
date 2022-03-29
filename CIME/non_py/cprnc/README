@@ -13,7 +13,7 @@ Quick Start Guide:
 ------------------
 
 On cime supported systems you can generate a cmake Macros file using the following
-(assuming you are running the command from the directory cime/tools/cprnc):
+(assuming you are running the command from the directory CIME/data/cprnc):
 
 export CIMEROOT=../..
 MPILIB=mpi-serial source ./.env_mach_specific.sh

@@ -1,4 +1,4 @@
-# Generate this with: $cimeroot/tools/configure --mpilib=mpi-serial --macros-format=CMake
+# Generate this with: $cimeroot/CIME/scripts/configure --mpilib=mpi-serial --macros-format=CMake
 #   You'll also need to source the .env_mach_specific.sh file before trying to build cprnc
 
 include("${BLDROOT}/Macros.cmake")
@@ -27,9 +27,9 @@ find_package (NetCDF COMPONENTS Fortran REQUIRED)
 # generate compare_vars_mod.F90
 add_custom_command(
   OUTPUT ${PROJECT_BINARY_DIR}/compare_vars_mod.F90
-  COMMAND perl ${PROJECT_SOURCE_DIR}/../../src/externals/genf90/genf90.pl
+  COMMAND perl ${PROJECT_SOURCE_DIR}/../externals/genf90/genf90.pl
     ${PROJECT_SOURCE_DIR}/compare_vars_mod.F90.in > ${PROJECT_BINARY_DIR}/compare_vars_mod.F90
-  DEPENDS ${PROJECT_SOURCE_DIR}/compare_vars_mod.F90.in ${PROJECT_SOURCE_DIR}/../../src/externals/genf90/genf90.pl
+    DEPENDS ${PROJECT_SOURCE_DIR}/compare_vars_mod.F90.in ${PROJECT_SOURCE_DIR}/../externals/genf90/genf90.pl
 )
 
 # Set up includes
