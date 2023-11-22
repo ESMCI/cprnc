@@ -18,6 +18,12 @@
 include (LibFind)
 include (LibCheck)
 
+# Define NetCDF C Component
+define_package_component (NetCDF DEFAULT
+                          COMPONENT C
+                          INCLUDE_NAMES netcdf.h
+                          LIBRARY_NAMES netcdf)
+
 # Define NetCDF Fortran Component
 define_package_component (NetCDF
                           COMPONENT Fortran
@@ -25,26 +31,29 @@ define_package_component (NetCDF
                           LIBRARY_NAMES netcdff)
 
 # Search for list of valid components requested
-#find_valid_components (NetCDF)
+find_valid_components (NetCDF)
+
 #==============================================================================
 # SEARCH FOR VALIDATED COMPONENTS
-   # If not found already, search...
-if (NOT NetCDF_Fortran_FOUND)
+foreach (NCDFcomp IN LISTS NetCDF_FIND_VALID_COMPONENTS)
+
+    # If not found already, search...
+    if (NOT NetCDF_${NCDFcomp}_FOUND)
 
         # Manually add the MPI include and library dirs to search paths
         # and search for the package component
-        if (MPI_Fortran_FOUND)
-            initialize_paths (NetCDF_Fortran_PATHS
-                              INCLUDE_DIRECTORIES ${MPI_Fortran_INCLUDE_PATH}
-                              LIBRARIES ${MPI_Fortran_LIBRARIES})
-            find_package_component(NetCDF COMPONENT Fortran
-                                   PATHS ${NetCDF_Fortran_PATHS})
+        if (MPI_${NCDFcomp}_FOUND)
+            initialize_paths (NetCDF_${NCDFcomp}_PATHS
+                              INCLUDE_DIRECTORIES ${MPI_${NCDFcomp}_INCLUDE_PATH}
+                              LIBRARIES ${MPI_${NCDFcomp}_LIBRARIES})
+            find_package_component(NetCDF COMPONENT ${NCDFcomp}
+                                   PATHS ${NetCDF_${NCDFcomp}_PATHS})
         else ()
-            find_package_component(NetCDF COMPONENT Fortran)
+            find_package_component(NetCDF COMPONENT ${NCDFcomp})
         endif ()
 
         # Continue only if component found
-        if (NetCDF_Fortran_FOUND)
+        if (NetCDF_${NCDFcomp}_FOUND)
 
             # Checks
             if (NCDFcomp STREQUAL C)
@@ -65,6 +74,8 @@ if (NOT NetCDF_Fortran_FOUND)
                  # Check if logging enabled
 		 set(CMAKE_REQUIRED_INCLUDES ${NetCDF_C_INCLUDE_DIR})
 		 set(CMAKE_REQUIRED_LIBRARIES ${NetCDF_C_LIBRARIES})
+		 CHECK_FUNCTION_EXISTS(nc_set_log_level NetCDF_C_LOGGING_ENABLED)
+
             endif ()
 
             # Dependencies
@@ -113,7 +124,7 @@ if (NOT NetCDF_Fortran_FOUND)
             elseif (NCDFcomp STREQUAL Fortran AND NOT NetCDF_Fortran_IS_SHARED)
 
                 # DEPENDENCY: NetCDF
-                set (orig_comp Fortran)
+                set (orig_comp ${NCDFcomp})
                 set (orig_comps ${NetCDF_FIND_VALID_COMPONENTS})
                 find_package (NetCDF COMPONENTS C)
                 set (NetCDF_FIND_VALID_COMPONENTS ${orig_comps})
@@ -128,3 +139,5 @@ if (NOT NetCDF_Fortran_FOUND)
         endif ()
 
     endif ()
+
+endforeach ()
