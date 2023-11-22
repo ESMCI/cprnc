@@ -1,88 +1,89 @@
-# Generate this with: $cimeroot/CIME/scripts/configure --mpilib=mpi-serial --macros-format=CMake
-#   You'll also need to source the .env_mach_specific.sh file before trying to build cprnc
+cmake_minimum_required (VERSION 2.8.12)
+project (cprnc Fortran)
+include (CheckFunctionExists)
+include (ExternalProject)
 
-include("${BLDROOT}/Macros.cmake")
-set(CMAKE_C_COMPILER "${SCC}")
-set(CMAKE_Fortran_COMPILER "${SFC}")
+#===== Local modules =====
+list (APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
-project(CPRNC C Fortran)
-enable_language(Fortran)
-set(CMAKE_Fortran_FLAGS "${FFLAGS}")
+#==============================================================================
+#  DEFINE THE TARGET
+#==============================================================================
 
-message("HERE fortran flags are ${CMAKE_Fortran_FLAGS} FFLAGS are ${FFLAGS}")
+set (CPRNC_Fortran_SRCS cprnc.F90  filestruct.F90  prec.F90  utils.F90)
 
-cmake_minimum_required(VERSION 2.8)
+set (CPRNC_GenF90_SRCS compare_vars_mod.F90)
 
-# Find netcdf
-set(NetCDF_PATH ${NETCDF_PATH})
 
-if (EXISTS ${SRC_ROOT}/libraries/parallelio/cmake)
-  set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${SRC_ROOT}/libraries/parallelio/cmake)
-else()
-  set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${SRC_ROOT}/externals/scorpio/cmake)
+set (CPRNC_Fortran_MODS ${CMAKE_CURRENT_BINARY_DIR}/compare_vars_mod.mod
+                        ${CMAKE_CURRENT_BINARY_DIR}/filestruct.mod
+                        ${CMAKE_CURRENT_BINARY_DIR}/prec.mod)
+
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
+add_executable (cprnc ${CPRNC_Fortran_SRCS} ${CPRNC_GenF90_SRCS})
+# Always use -fPIC
+set_property(TARGET cprnc PROPERTY POSITION_INDEPENDENT_CODE ON)
+
+# Compiler-specific compile options
+if ("${CMAKE_Fortran_COMPILER_ID}" STREQUAL "GNU")
+  target_compile_options (cprnc
+    PRIVATE -ffree-line-length-none)
 endif()
 
-find_package (NetCDF COMPONENTS Fortran REQUIRED)
-
-# generate compare_vars_mod.F90
-add_custom_command(
-  OUTPUT ${PROJECT_BINARY_DIR}/compare_vars_mod.F90
-  COMMAND perl ${PROJECT_SOURCE_DIR}/../externals/genf90/genf90.pl
-    ${PROJECT_SOURCE_DIR}/compare_vars_mod.F90.in > ${PROJECT_BINARY_DIR}/compare_vars_mod.F90
-    DEPENDS ${PROJECT_SOURCE_DIR}/compare_vars_mod.F90.in ${PROJECT_SOURCE_DIR}/../externals/genf90/genf90.pl
-)
-
-# Set up includes
-include_directories(
-  ${NetCDF_Fortran_INCLUDE_DIRS}
-  ${PROJECT_SOURCE_DIR}
-  ${PROJECT_BINARY_DIR}
-)
-
-#
-# Set up lib dependencies, relying on nf-config if possible or NetCDF_Fortran_LIBRARIES
-# as a fallback. We want the executable to find libraries via RPATH so that cprnc is
-# less-dependent on the current environment (since cprnc is built with a serial netcdf,
-# it's likely that a parallel case will have different netcdf modules loaded when it
-# comes time to execute cprnc).
-#
-execute_process(COMMAND ${NETCDF_PATH}/bin/nf-config --flibs
-  RESULT_VARIABLE NF_CONFIG_RESULT
-  OUTPUT_VARIABLE NF_CONFIG_OUTPUT)
-
-if (NF_CONFIG_RESULT STREQUAL "0")
-  separate_arguments(NF_LIB_LIST UNIX_COMMAND "${NF_CONFIG_OUTPUT}")
-else()
-  set(NF_LIB_LIST ${NetCDF_Fortran_LIBRARIES})
+if (CMAKE_BUILD_TYPE STREQUAL "DEBUG")
+     set (CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -g")
 endif()
 
-message("lib list is: ${NF_LIB_LIST}")
+#==============================================================================
+#  DEFINE THE INSTALL
+#==============================================================================
 
-foreach(NF_LIB IN LISTS NF_LIB_LIST)
-  if (NF_LIB MATCHES "-l")
-    continue()
-  elseif (NF_LIB MATCHES "-L/")
-    string(REGEX REPLACE "^-L" "" NF_LIB_DIR "${NF_LIB}")
-    list(APPEND NF_LIB_DIRS ${NF_LIB_DIR})
-  else()
-    get_filename_component(NF_LIB_DIR ${NF_LIB} DIRECTORY)
-    list(APPEND NF_LIB_DIRS ${NF_LIB_DIR})
-  endif()
-endforeach()
+# Executable
+install (TARGETS cprnc DESTINATION bin)
 
-message("lib dirs are: ${NF_LIB_DIRS}")
+#==============================================================================
+#  DEFINE THE DEPENDENCIES
+#==============================================================================
 
-set(CMAKE_BUILD_RPATH ${NF_LIB_DIRS})
+#===== genf90 =====
+if (DEFINED GENF90_PATH)
+  add_custom_target(genf90
+    DEPENDS ${GENF90_PATH}/genf90.pl)
+else ()
+  ExternalProject_Add (genf90
+    PREFIX ${CMAKE_CURRENT_BINARY_DIR}/genf90
+    GIT_REPOSITORY https://github.com/PARALLELIO/genf90
+    GIT_TAG genf90_200608
+    UPDATE_COMMAND ""
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ""
+    INSTALL_COMMAND "")
+  ExternalProject_Get_Property (genf90 SOURCE_DIR)
+  set (GENF90_PATH ${SOURCE_DIR})
+  unset (SOURCE_DIR)
+endif ()
+add_dependencies (cprnc genf90)
 
-# Add targets
-set (CPRNC_SRCS
-  ${PROJECT_BINARY_DIR}/compare_vars_mod.F90
-  filestruct.F90
-  utils.F90
-  prec.F90
-  cprnc.F90
-)
+#===== Fortran Source Generation with GenF90 =====
+foreach (SRC_FILE IN LISTS CPRNC_GenF90_SRCS)
+  add_custom_command (OUTPUT ${SRC_FILE}
+    COMMAND ${GENF90_PATH}/genf90.pl
+    ${CMAKE_CURRENT_SOURCE_DIR}/${SRC_FILE}.in > ${SRC_FILE}
+    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${SRC_FILE}.in genf90)
+endforeach ()
 
-add_executable(cprnc ${CPRNC_SRCS})
+#===== NetCDF-Fortran =====
+INCLUDE(FindNetCDF Fortran)
+if (NetCDF_Fortran_FOUND)
+  target_include_directories (cprnc
+    PUBLIC ${NetCDF_Fortran_INCLUDE_DIRS})
+  target_link_libraries (cprnc
+    PUBLIC ${NetCDF_Fortran_LIBRARIES})
+endif ()
 
-target_link_libraries(cprnc ${NF_LIB_LIST})
+
+#===== Check for necessities =====
+if (NOT NetCDF_Fortran_FOUND)
+  message (FATAL_ERROR "Must have NetCDF Fortran libraries")
+endif ()
