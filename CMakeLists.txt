@@ -1,5 +1,5 @@
 cmake_minimum_required (VERSION 3.14)
-project (cprnc Fortran)
+project (cprnc Fortran C)
 include (CheckFunctionExists)
 include (ExternalProject)
 
