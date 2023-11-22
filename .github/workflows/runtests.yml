@@ -18,12 +18,12 @@ jobs:
     - name: cmake build
       shell: bash
       run: |
-        export NETCDF_Fortran_LIBRARY=/usr/lib/x86_64-linux-gnu/libnetcdff.a
-        export NETCDF_Fortran_INCLUDE_DIR=/usr/include
-        export FCFLAGS="-Wall -fsanitize=address -static-libasan"
-        export LDFLAGS=" -static-libasan"
         mkdir build
         cd build
-        cmake -Wno-dev ../
+        cmake -Wno-dev \
+              -DNETCDF_Fortran_LIBRARY=/usr/lib/x86_64-linux-gnu/libnetcdff.a \
+              -DNETCDF_Fortran_INCLUDE_DIR=/usr/include \
+              -DCMAKE_Fortran_FLAGS="-Wall" \
+              ../
         make VERBOSE=1
         make test
