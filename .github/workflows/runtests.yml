@@ -24,6 +24,8 @@ jobs:
         cmake -Wno-dev \
               -DNetCDF_Fortran_LIBRARY=/usr/lib/x86_64-linux-gnu/libnetcdff.a \
               -DNetCDF_Fortran_INCLUDE_DIR=/usr/include \
+              -DNetCDF_C_LIBRARY=/usr/lib/x86_64-linux-gnu/libnetcdf.a \
+              -DNetCDF_C_INCLUDE_DIR=/usr/include \
               -DCMAKE_Fortran_FLAGS="-Wall" \
               ../
         make VERBOSE=1
