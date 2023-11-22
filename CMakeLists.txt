@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 2.8.12)
+cmake_minimum_required (VERSION 3.14)
 project (cprnc Fortran)
 include (CheckFunctionExists)
 include (ExternalProject)
@@ -65,6 +65,13 @@ else ()
 endif ()
 add_dependencies (cprnc genf90)
 
+file(COPY  ${CMAKE_CURRENT_SOURCE_DIR}/run_tests
+     DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+
+execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_CURRENT_SOURCE_DIR}/test_inputs ${CMAKE_CURRENT_BINARY_DIR}/test_inputs)
+enable_testing()
+add_test(NAME run_tests COMMAND run_tests -outdir tmp)
+
 #===== Fortran Source Generation with GenF90 =====
 foreach (SRC_FILE IN LISTS CPRNC_GenF90_SRCS)
   add_custom_command (OUTPUT ${SRC_FILE}
@@ -87,3 +94,5 @@ endif ()
 if (NOT NetCDF_Fortran_FOUND)
   message (FATAL_ERROR "Must have NetCDF Fortran libraries")
 endif ()
+
+
