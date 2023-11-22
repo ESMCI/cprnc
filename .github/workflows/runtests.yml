@@ -18,11 +18,12 @@ jobs:
     - name: cmake build
       shell: bash
       run: |
+        export FC=gfortran
         mkdir build
         cd build
         cmake -Wno-dev \
-              -DNETCDF_Fortran_LIBRARY=/usr/lib/x86_64-linux-gnu/libnetcdff.a \
-              -DNETCDF_Fortran_INCLUDE_DIR=/usr/include \
+              -DNetCDF_Fortran_LIBRARY=/usr/lib/x86_64-linux-gnu/libnetcdff.a \
+              -DNetCDF_Fortran_INCLUDE_DIR=/usr/include \
               -DCMAKE_Fortran_FLAGS="-Wall" \
               ../
         make VERBOSE=1
