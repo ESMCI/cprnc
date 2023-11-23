@@ -20,27 +20,17 @@ set (CPRNC_Fortran_MODS ${CMAKE_CURRENT_BINARY_DIR}/compare_vars_mod.mod
                         ${CMAKE_CURRENT_BINARY_DIR}/prec.mod)
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-
-add_executable (cprnc ${CPRNC_Fortran_SRCS} ${CPRNC_GenF90_SRCS})
-# Always use -fPIC
-set_property(TARGET cprnc PROPERTY POSITION_INDEPENDENT_CODE ON)
+set(CMAKE_MACOSX_RPATH 1)
 
 # Compiler-specific compile options
 if ("${CMAKE_Fortran_COMPILER_ID}" STREQUAL "GNU")
-  target_compile_options (cprnc
-    PRIVATE -ffree-line-length-none)
+  set (CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -ffree-line-length-none")
 endif()
 
 if (CMAKE_BUILD_TYPE STREQUAL "DEBUG")
      set (CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -g")
 endif()
 
-#==============================================================================
-#  DEFINE THE INSTALL
-#==============================================================================
-
-# Executable
-install (TARGETS cprnc DESTINATION bin)
 
 #==============================================================================
 #  DEFINE THE DEPENDENCIES
@@ -63,14 +53,12 @@ else ()
   set (GENF90_PATH ${SOURCE_DIR})
   unset (SOURCE_DIR)
 endif ()
-add_dependencies (cprnc genf90)
+
 
 file(COPY  ${CMAKE_CURRENT_SOURCE_DIR}/run_tests
      DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_CURRENT_SOURCE_DIR}/test_inputs ${CMAKE_CURRENT_BINARY_DIR}/test_inputs)
-enable_testing()
-add_test(NAME run_tests COMMAND run_tests -outdir tmp)
 
 #===== Fortran Source Generation with GenF90 =====
 foreach (SRC_FILE IN LISTS CPRNC_GenF90_SRCS)
@@ -81,18 +69,37 @@ foreach (SRC_FILE IN LISTS CPRNC_GenF90_SRCS)
 endforeach ()
 
 #===== NetCDF-Fortran =====
-INCLUDE(FindNetCDF Fortran)
-if (NetCDF_Fortran_FOUND)
-  target_include_directories (cprnc
-    PUBLIC ${NetCDF_Fortran_INCLUDE_DIRS})
-  target_link_libraries (cprnc
-    PUBLIC ${NetCDF_Fortran_LIBRARIES})
-endif ()
+INCLUDE(FindNetCDF)
+find_library(netcdf_fortran_lib netcdff HINTS ${NetCDF_Fortran_ROOT})
+#message (STATUS "netcdf_fortran_lib == ${netcdf_fortran_lib}")
+get_filename_component(netcdf_fortran_lib_location ${netcdf_fortran_lib} DIRECTORY)
+#message (STATUS "netcdf_fortran_lib_location == ${netcdf_fortran_lib_location}")
+
+find_library(netcdf_c_lib netcdf HINTS ${NetCDF_C_LIBRARY})
+#message (STATUS "netcdf_c_lib == ${netcdf_c_lib}")
+get_filename_component(netcdf_c_lib_location ${netcdf_c_lib} DIRECTORY)
+#message (STATUS "netcdf_c_lib_location == ${netcdf_c_lib_location}")
+
+list(APPEND CMAKE_BUILD_RPATH ${netcdf_fortran_lib_location} ${netcdf_c_lib_location})
+#message("CMAKE_BUILD_RPATH is ${CMAKE_BUILD_RPATH}")
+add_executable (cprnc ${CPRNC_Fortran_SRCS} ${CPRNC_GenF90_SRCS})
+#message("Setting include dir ${NetCDF_Fortran_INCLUDE_DIRS}")
+target_include_directories(cprnc PUBLIC ${NetCDF_Fortran_INCLUDE_DIRS})
+
+add_dependencies (cprnc genf90)
+
+# Always use -fPIC
+set_property(TARGET cprnc PROPERTY POSITION_INDEPENDENT_CODE ON)
+target_link_libraries (cprnc
+    PUBLIC ${NetCDF_Fortran_LIBRARIES} ${NetCDF_C_LIBRARIES} ${NetCDF_LIBRARIES})
 
 
-#===== Check for necessities =====
-if (NOT NetCDF_Fortran_FOUND)
-  message (FATAL_ERROR "Must have NetCDF Fortran libraries")
-endif ()
+enable_testing()
+add_test(NAME run_tests COMMAND run_tests -outdir tmp)
 
+#==============================================================================
+#  DEFINE THE INSTALL
+#==============================================================================
 
+# Executable
+install (TARGETS cprnc DESTINATION bin)
