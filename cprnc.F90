@@ -6,7 +6,7 @@ program piocprnc
   use f90_unix
 #endif
   implicit none
-
+  include "version.inc"
   integer :: nargs, n
   character(len=1024) :: arg = ''                     ! cmd-line argument
   character(len=1024) :: fname(2) = ' '          ! input filenames
@@ -37,7 +37,6 @@ program piocprnc
 ! Parse arg list
 !
 
-
    nargs = command_argument_count ()
    dimoptioncnt=0
    ignoretime=.false.
@@ -47,6 +46,9 @@ program piocprnc
       call getarg (n, arg)
       n = n + 1
       select case (arg)
+      case ('-V')
+         print *,"cprnc version:", version
+         stop
       case ('-v')
          verbose = .true.
       case ('-d')

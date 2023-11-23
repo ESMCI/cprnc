@@ -28,9 +28,9 @@ if ("${CMAKE_Fortran_COMPILER_ID}" STREQUAL "GNU")
 endif()
 
 if (CMAKE_BUILD_TYPE STREQUAL "DEBUG")
-     set (CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -g")
+  set (CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -O0 -g")
 endif()
-
+set (CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -D_VERSION_=\"v1.0.0\"")
 
 #==============================================================================
 #  DEFINE THE DEPENDENCIES

@@ -24,10 +24,10 @@ jobs:
           create_annotated_tag: true
           default_bump: patch
           dry_run: true
-          tag_prefix: cprnc-
+          tag_prefix: v
       - name: Update version.txt
         run: |
-          echo "${{ steps.name_tag.outputs.new_tag }}" > version.txt
+          echo "character(len=*), parameter :: version=\"${{ steps.name_tag.outputs.new_tag }}\"" > version.inc
       - name: Amend the last commit
         run: |
           git config --global user.email "gitbot@openrct2.org"
@@ -43,4 +43,4 @@ jobs:
           create_annotated_tag: true
           default_bump: patch
           dry_run: false
-          tag_prefix: cprnc-
+          tag_prefix: v
