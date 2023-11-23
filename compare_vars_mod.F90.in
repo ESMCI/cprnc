@@ -505,11 +505,12 @@ contains
 810 format(12x,i8,2x,a,1x,a)
 
 ! RMS for int
+#if ({ITYPE} == TYPEINT)
 811 format(a,a32,1pe11.4,11x,a,i12,/)
-
+#else
 ! RMS for real
 812 format(a,a32,1pe11.4,11x,a,1pe11.4,/)
-
+#endif
 814   format(12x,      i8,1x,e23.15,a,e23.15,/, &
              12x,      i8,1x,e23.15,a,e23.15)
 815 format(10x,'avg abs field values:  ',1pe23.15,/, &
