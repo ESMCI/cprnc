@@ -30,7 +30,6 @@ endif()
 if (CMAKE_BUILD_TYPE STREQUAL "DEBUG")
   set (CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -O0 -g")
 endif()
-set (CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -D_VERSION_=\"v1.0.0\"")
 
 #==============================================================================
 #  DEFINE THE DEPENDENCIES
@@ -84,7 +83,7 @@ list(APPEND CMAKE_BUILD_RPATH ${netcdf_fortran_lib_location} ${netcdf_c_lib_loca
 #message("CMAKE_BUILD_RPATH is ${CMAKE_BUILD_RPATH}")
 add_executable (cprnc ${CPRNC_Fortran_SRCS} ${CPRNC_GenF90_SRCS})
 #message("Setting include dir ${NetCDF_Fortran_INCLUDE_DIRS}")
-target_include_directories(cprnc PUBLIC ${NetCDF_Fortran_INCLUDE_DIRS})
+target_include_directories(cprnc PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${NetCDF_Fortran_INCLUDE_DIRS})
 
 add_dependencies (cprnc genf90)
 
