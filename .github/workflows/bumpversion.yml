@@ -1,3 +1,4 @@
+# This action requires that the branch protection for main do not require a pull request before merging.
 name: Update file on PR merge
 on:
   pull_request:
