@@ -27,7 +27,7 @@ jobs:
           tag_prefix: v
       - name: Update version.txt
         run: |
-          echo "character(len=*), parameter :: version=\"${{ steps.name_tag.outputs.new_tag }}\"" > version.inc
+          echo "character(len=*), parameter :: version=\"${{ steps.name_tag.outputs.new_tag }}\"\n" > version.inc
       - name: Amend the last commit
         run: |
           git config --global user.email "gitbot@openrct2.org"
