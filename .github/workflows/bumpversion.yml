@@ -1,4 +1,6 @@
-# This action requires that the branch protection for main do not require a pull request before merging.
+# This action requires that the branch protection for main are turned off.
+# Documented in https://stackoverflow.com/questions/74128344/github-protected-branch-hook-declined-even-with-allow-force-pushes
+# If you know a way around this I would be happy to apply it.
 name: Update file on PR merge
 on:
   pull_request:
