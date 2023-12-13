@@ -4,7 +4,7 @@ include (CheckFunctionExists)
 include (ExternalProject)
 
 #===== Local modules =====
-list (APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
+list (APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 #==============================================================================
 #  DEFINE THE TARGET
@@ -37,8 +37,11 @@ endif()
 
 #===== genf90 =====
 if (DEFINED GENF90_PATH)
-  add_custom_target(genf90
-    DEPENDS ${GENF90_PATH}/genf90.pl)
+  # If GENF90_PATH is defined, the target may also already be defined
+  if (NOT TARGET genf90)
+    add_custom_target(genf90
+      DEPENDS ${GENF90_PATH}/genf90.pl)
+  endif()
 else ()
   ExternalProject_Add (genf90
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/genf90
