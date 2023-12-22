@@ -65,7 +65,7 @@ else()
 endif()
 
 find_path(NetCDF_Fortran_INCLUDE_DIRS netcdf.mod
-  HINTS "${DEFAULT_Fortran_INCLUDE_DIR}" "$ENV{NetCDF_Fortran_INCLDE_DIRS}" "$ENV{CONDA_PREFIX}/Library/include"
+  HINTS "${DEFAULT_Fortran_INCLUDE_DIR}" "$ENV{NetCDF_Fortran_INCLUDE_DIRS}" "$ENV{CONDA_PREFIX}/Library/include"
   DOC "NetCDF Fortran include directories")
 
 find_library(NetCDF_Fortran_LIBRARY NAMES ${DEFAULT_LIBRARY_NAME}
@@ -73,7 +73,7 @@ find_library(NetCDF_Fortran_LIBRARY NAMES ${DEFAULT_LIBRARY_NAME}
             DOC "NetCDF libraries (or linking flags)")
 
 find_path(NetCDF_C_INCLUDE_DIRS netcdf.h
-  HINTS "${DEFAULT_C_INCLUDE_DIR}" "$ENV{NetCDF_C_INCLDE_DIRS}" "$ENV{CONDA_PREFIX}/Library/include"
+  HINTS "${DEFAULT_C_INCLUDE_DIR}" "$ENV{NetCDF_C_INCLUDE_DIRS}" "$ENV{CONDA_PREFIX}/Library/include"
   DOC "NetCDF C include directories")
 
 find_library(NetCDF_C_LIBRARY NAMES ${DEFAULT_LIBRARY_NAME}
