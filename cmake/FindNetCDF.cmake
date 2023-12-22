@@ -46,9 +46,9 @@ if(NetCDF_C_CONFIG_EXECUTABLE)
                     OUTPUT_VARIABLE DEFAULT_C_INCLUDE_DIR
                     OUTPUT_STRIP_TRAILING_WHITESPACE)
   execute_process(COMMAND ${NetCDF_C_CONFIG_EXECUTABLE} --libs
-                    OUTPUT_VARIABLE libs
+                    OUTPUT_VARIABLE clibs
                     OUTPUT_STRIP_TRAILING_WHITESPACE)
-  if (flibs)
+  if (clibs)
     set(NetCDF_C_LIBRARIES ${libs} CACHE STRING "NetCDF libraries (or linking flags)")
     set(AUTODETECTED_NetCDF_C ON)
   endif()
