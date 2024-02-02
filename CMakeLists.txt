@@ -1,4 +1,9 @@
 cmake_minimum_required (VERSION 3.14)
+
+if (NOT DEFINED PROJECT_NAME)
+  set(CPRNC_STANDALONE TRUE)
+endif()
+
 project (cprnc Fortran C)
 include (CheckFunctionExists)
 include (ExternalProject)
@@ -95,9 +100,11 @@ set_property(TARGET cprnc PROPERTY POSITION_INDEPENDENT_CODE ON)
 target_link_libraries (cprnc
     PUBLIC ${NetCDF_Fortran_LIBRARIES} ${NetCDF_C_LIBRARIES} ${NetCDF_LIBRARIES})
 
-
-enable_testing()
-add_test(NAME run_tests COMMAND run_tests -outdir tmp)
+# We do not want cprnc injecting ctests into parent projects
+if (CPRNC_STANDALONE)
+  enable_testing()
+  add_test(NAME run_tests COMMAND run_tests -outdir tmp)
+endif()
 
 #==============================================================================
 #  DEFINE THE INSTALL
