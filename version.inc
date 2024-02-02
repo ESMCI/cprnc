@@ -1,1 +1,2 @@
-character(len=*), parameter :: version="v1.0.4"
+character(len=*), parameter :: version="v1.0.5"
+  
