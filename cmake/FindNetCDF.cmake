@@ -1,13 +1,13 @@
 # First try to locate nf-config.
 find_program(NetCDF_Fortran_CONFIG_EXECUTABLE
     NAMES nf-config
-    HINTS ENV NetCDF_ROOT NetCDF_Fortran_ROOT
+    HINTS ENV NetCDF_ROOT ENV NetCDF_Fortran_ROOT
     PATH_SUFFIXES bin Bin
     DOC "NetCDF config program. Used to detect NetCDF Fortran include directory and linker flags." )
 mark_as_advanced(NetCDF_Fortran_CONFIG_EXECUTABLE)
 find_program(NetCDF_C_CONFIG_EXECUTABLE
     NAMES nc-config
-    HINTS ENV NetCDF_ROOT NetCDF_C_ROOT
+    HINTS ENV NetCDF_ROOT ENV NetCDF_C_ROOT
     PATH_SUFFIXES bin Bin
     DOC "NetCDF config program. Used to detect NetCDF C include directory and linker flags." )
 mark_as_advanced(NetCDF_C_CONFIG_EXECUTABLE)
