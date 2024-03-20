@@ -49,7 +49,7 @@ if(NetCDF_C_CONFIG_EXECUTABLE)
                     OUTPUT_VARIABLE clibs
                     OUTPUT_STRIP_TRAILING_WHITESPACE)
   if (clibs)
-    set(NetCDF_C_LIBRARIES ${libs} CACHE STRING "NetCDF libraries (or linking flags)")
+    set(NetCDF_C_LIBRARIES ${clibs} CACHE STRING "NetCDF libraries (or linking flags)")
     set(AUTODETECTED_NetCDF_C ON)
   endif()
 
