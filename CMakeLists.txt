@@ -26,6 +26,7 @@ set (CPRNC_Fortran_MODS ${CMAKE_CURRENT_BINARY_DIR}/compare_vars_mod.mod
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_MACOSX_RPATH 1)
+SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 # Compiler-specific compile options
 if ("${CMAKE_Fortran_COMPILER_ID}" STREQUAL "GNU")
@@ -81,6 +82,7 @@ find_library(netcdf_fortran_lib netcdff HINTS ${NetCDF_Fortran_ROOT})
 #message (STATUS "netcdf_fortran_lib == ${netcdf_fortran_lib}")
 get_filename_component(netcdf_fortran_lib_location ${netcdf_fortran_lib} DIRECTORY)
 #message (STATUS "netcdf_fortran_lib_location == ${netcdf_fortran_lib_location}")
+SET(CMAKE_INSTALL_RPATH "${netcdf_fortran_lib_location};${netcdf_c_lib_location}")
 
 find_library(netcdf_c_lib netcdf HINTS ${NetCDF_C_LIBRARY})
 #message (STATUS "netcdf_c_lib == ${netcdf_c_lib}")
