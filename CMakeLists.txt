@@ -7,6 +7,7 @@ endif()
 project (cprnc Fortran C)
 include (CheckFunctionExists)
 include (ExternalProject)
+find_package(PkgConfig REQUIRED)
 
 #===== Local modules =====
 list (APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
@@ -74,8 +75,11 @@ foreach (SRC_FILE IN LISTS CPRNC_GenF90_SRCS)
     DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${SRC_FILE}.in genf90)
 endforeach ()
 
+#===== NetCDF =====
+pkg_check_modules(NetCDF REQUIRED netcdf)
+
 #===== NetCDF-Fortran =====
-INCLUDE(FindNetCDF)
+pkg_check_modules(NetCDF_Fortran REQUIRED netcdf-fortran)
 add_executable (cprnc ${CPRNC_Fortran_SRCS} ${CPRNC_GenF90_SRCS})
 target_include_directories(cprnc PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${NetCDF_Fortran_INCLUDE_DIRS})
 
@@ -84,7 +88,7 @@ add_dependencies (cprnc genf90)
 # Always use -fPIC
 set_property(TARGET cprnc PROPERTY POSITION_INDEPENDENT_CODE ON)
 target_link_libraries (cprnc
-    PUBLIC ${NetCDF_Fortran_LIBRARIES} ${NetCDF_C_LIBRARIES} ${NetCDF_LIBRARIES})
+    PUBLIC ${NetCDF_Fortran_LIBRARIES} ${NetCDF_LIBRARIES})
 
 # We do not want cprnc injecting ctests into parent projects
 if (CPRNC_STANDALONE)
