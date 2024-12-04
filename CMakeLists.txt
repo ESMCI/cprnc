@@ -25,8 +25,6 @@ set (CPRNC_Fortran_MODS ${CMAKE_CURRENT_BINARY_DIR}/compare_vars_mod.mod
                         ${CMAKE_CURRENT_BINARY_DIR}/prec.mod)
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-set(CMAKE_MACOSX_RPATH 1)
-SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 # Compiler-specific compile options
 if ("${CMAKE_Fortran_COMPILER_ID}" STREQUAL "GNU")
@@ -78,21 +76,7 @@ endforeach ()
 
 #===== NetCDF-Fortran =====
 INCLUDE(FindNetCDF)
-find_library(netcdf_fortran_lib netcdff HINTS ${NetCDF_Fortran_ROOT})
-#message (STATUS "netcdf_fortran_lib == ${netcdf_fortran_lib}")
-get_filename_component(netcdf_fortran_lib_location ${netcdf_fortran_lib} DIRECTORY)
-#message (STATUS "netcdf_fortran_lib_location == ${netcdf_fortran_lib_location}")
-SET(CMAKE_INSTALL_RPATH "${netcdf_fortran_lib_location};${netcdf_c_lib_location}")
-
-find_library(netcdf_c_lib netcdf HINTS ${NetCDF_C_LIBRARY})
-#message (STATUS "netcdf_c_lib == ${netcdf_c_lib}")
-get_filename_component(netcdf_c_lib_location ${netcdf_c_lib} DIRECTORY)
-#message (STATUS "netcdf_c_lib_location == ${netcdf_c_lib_location}")
-
-list(APPEND CMAKE_BUILD_RPATH ${netcdf_fortran_lib_location} ${netcdf_c_lib_location})
-#message("CMAKE_BUILD_RPATH is ${CMAKE_BUILD_RPATH}")
 add_executable (cprnc ${CPRNC_Fortran_SRCS} ${CPRNC_GenF90_SRCS})
-#message("Setting include dir ${NetCDF_Fortran_INCLUDE_DIRS}")
 target_include_directories(cprnc PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${NetCDF_Fortran_INCLUDE_DIRS})
 
 add_dependencies (cprnc genf90)
