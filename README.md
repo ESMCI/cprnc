@@ -47,18 +47,19 @@ generally 132 characters wide and an analyze file is less than 80
 characters wide.
 
 In analyze mode, the output for a field looks like
-
+```
                       (   lon,   lat,  time, -----)
               259200  (   587,   134,     1) (   269,    59,     1)
  FX1           96369   8.273160400390625E+02  0.000000000000000E+00
             avg abs field values:   9.052845920820910E+01
-
+```
 and a guide to this information is printed at the top of the file
 
+```
                       (  dim1,  dim2,  dim3,  dim4)
               ARRSIZ1 ( indx1, indx2, indx3) file 1
  FIELD        NVALID           MAX                   MIN
-
+```
 
 The first 10 characters of the field name are identified in the first
   dozen columns of the third line.
@@ -73,7 +74,7 @@ The last line summarizes some overall statistics including the average
   absolute value of the valid values of the field.
 
 In comparison mode, the output (132 chars wide) for a field looks like
-
+```
                96369  (   lon,   lat,  time)
               259200  (   422,   198,     1) (   203,   186,     1)           (    47,   169,     1)         (   224,   171,     1)
  FIRA          96369   1.466549530029297E+02 -3.922052764892578E+01   1.4E+02 -3.037954139709473E+01 1.0E+00 -3.979958057403564E+00
@@ -81,15 +82,15 @@ In comparison mode, the output (132 chars wide) for a field looks like
               259200  (   156,    31,     1) (   573,   178,     1)           (
           avg abs field values:    6.778244097051392E+01    rms diff: 1.4E+01   avg rel diff(npos):  4.6E-02
                                    5.960437961084186E+01                        avg decimal digits(ndif):  1.2 worst:  0.0
-
+```
 and a guide to this information is printed at the top of the file
-
+```
               NDIFFS  (  dim1,  dim2,  dim3,  dim4, ... )
               ARRSIZ1 ( indx1, indx2, indx3, ... ) file 1
  FIELD        NVALID1          MAX1                  MIN1            DIFFMAX  VALUES                RDIFMAX  VALUES
               NVALID2          MAX2                  MIN2
               ARRSIZ2 ( indx1, indx2, indx3, ...) file 2
-
+```
 The information content is identical to the information in analyze
 mode with the following additions.  Two additional lines are added
 in the main body.  Lines 4 and 5 are identical to line 3 and 2
@@ -120,7 +121,7 @@ will be 4.
 max relative difference (in the above example, this would give 3).
 
 At the end of the output file, a summary is presented that looks like
-
+```
 SUMMARY of cprnc:
  A total number of    119 fields were compared
           of which     83 had non-zero differences
@@ -132,7 +133,7 @@ SUMMARY of cprnc:
  A total number of      0 time-varying fields on file 2 were not found on file 1.
  A total number of      0 time-constant fields on file 2 were not found on file 1.
   diff_test: the two files seem to be DIFFERENT
-
+```
 
 This summarizes:
 - the number of fields that were compared
