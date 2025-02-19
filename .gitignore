@@ -1,0 +1,57 @@
+# Ignore CMake build files
+CMakeFiles/
+/CMakeCache.txt
+/cmake_install.cmake
+/Makefile
+/compile_commands.json
+
+# Ignore generated files
+*.o
+*.obj
+*.lo
+*.la
+*.a
+*.lib
+*.so
+*.so.*
+*.dylib
+*.dll
+*.exe
+*.out
+*.app
+*.i
+*.ii
+*.s
+*.su
+*.mod
+*.tmod
+*.pdb
+*.idb
+*.pdb
+*.ilk
+*.nc
+
+# Ignore dependency files
+*.d
+*.dSYM/
+*.dwo
+
+# Ignore editor/IDE files
+*.swp
+*.swo
+*~
+*.bak
+*.tmp
+*.temp
+*.log
+*.diff
+*.patch
+*.orig
+*.rej
+*.old
+*.new
+*.sublime-workspace
+*.sublime-project
+*.vscode/
+.idea/
+*.code-workspace
