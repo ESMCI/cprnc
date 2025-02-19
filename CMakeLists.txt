@@ -7,7 +7,6 @@ endif()
 project (cprnc Fortran C)
 include (CheckFunctionExists)
 include (ExternalProject)
-find_package(PkgConfig REQUIRED)
 
 #===== Local modules =====
 list (APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
@@ -75,11 +74,33 @@ foreach (SRC_FILE IN LISTS CPRNC_GenF90_SRCS)
     DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${SRC_FILE}.in genf90)
 endforeach ()
 
-#===== NetCDF =====
-pkg_check_modules(NetCDF REQUIRED IMPORTED_TARGET netcdf)
+# Try to find NetCDF dependency. Try standard find_package first.
+find_package(NetCDF QUIET COMPONENTS C Fortran)
+if (NetCDF_FOUND)
+  if(TARGET NetCDF::NetCDF_Fortran)
+    set(CPRNC_NETCDF_FORTRAN_LIB NetCDF::NetCDF_Fortran)
+    set(CPRNC_NETCDF_C_LIB       NetCDF::NetCDF_C)
+  else()
+    # We used an old-school find netcdf module. Make the target here
+    add_library(netcdf_cprnc INTERFACE)
+    target_link_libraries(netcdf_cprnc INTERFACE ${NetCDF_Fortran_LIBRARIES};${NetCDF_C_LIBRARIES})
+    target_include_directories(netcdf_cprnc INTERFACE ${NetCDF_Fortran_INCLUDE_DIRS};${NetCDF_C_INCLUDE_DIRS})
+    set(CPRNC_NETCDF_FORTRAN_LIB netcdf_cprnc)
+  endif()
+else ()
+  message(STATUS "NetCDF was not found, falling back on pkg-config")
+  find_package(PkgConfig REQUIRED)
 
-#===== NetCDF-Fortran =====
-pkg_check_modules(NetCDF_Fortran REQUIRED IMPORTED_TARGET netcdf-fortran)
+  #===== NetCDF =====
+  pkg_check_modules(NetCDF REQUIRED IMPORTED_TARGET netcdf)
+
+  #===== NetCDF-Fortran =====
+  pkg_check_modules(NetCDF_Fortran REQUIRED IMPORTED_TARGET netcdf-fortran)
+
+  set(CPRNC_NETCDF_FORTRAN_LIB PkgConfig::NetCDF_Fortran)
+  set(CPRNC_NETCDF_C_LIB       PkgConfig::NetCDF)
+endif()
+
 add_executable (cprnc ${CPRNC_Fortran_SRCS} ${CPRNC_GenF90_SRCS})
 target_include_directories(cprnc PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
@@ -88,7 +109,7 @@ add_dependencies (cprnc genf90)
 # Always use -fPIC
 set_property(TARGET cprnc PROPERTY POSITION_INDEPENDENT_CODE ON)
 target_link_libraries (cprnc
-    PUBLIC PkgConfig::NetCDF_Fortran PkgConfig::NetCDF)
+    PUBLIC ${CPRNC_NETCDF_FORTRAN_LIB} ${CPRNC_NETCDF_C_LIB})
 
 # We do not want cprnc injecting ctests into parent projects
 if (CPRNC_STANDALONE)
