@@ -90,10 +90,10 @@ if (NetCDF_FOUND)
 else ()
   # If netcdf is not installed as a CMake pkg, the find_package above will fail,
   # but netcdf may still be installed in the <PackageName>_ROOT folders
-  find_library(NetCDF_C_LIBRARIES netcdf QUIET HINTS ${NetCDF_C_ROOT} PATH_SUFFIXES lib lib64)
-  find_library(NetCDF_Fortran_LIBRARIES netcdff QUIET HINTS ${NetCDF_Fortran_ROOT} PATH_SUFFIXES lib lib64)
-  find_path(NetCDF_C_INCLUDE_DIRS netcdf.h QUIET HINTS ${NetCDF_C_ROOT} PATH_SUFFIXES include)
-  find_path(NetCDF_Fortran_INCLUDE_DIRS netcdf.mod QUIET HINTS ${NetCDF_Fortran_ROOT} PATH_SUFFIXES include)
+  find_library(NetCDF_C_LIBRARIES netcdf HINTS ${NetCDF_C_ROOT} PATH_SUFFIXES lib lib64)
+  find_library(NetCDF_Fortran_LIBRARIES netcdff HINTS ${NetCDF_Fortran_ROOT} PATH_SUFFIXES lib lib64)
+  find_path(NetCDF_C_INCLUDE_DIRS netcdf.h HINTS ${NetCDF_C_ROOT} PATH_SUFFIXES include)
+  find_path(NetCDF_Fortran_INCLUDE_DIRS netcdf.mod HINTS ${NetCDF_Fortran_ROOT} PATH_SUFFIXES include)
 
   if (NetCDF_C_LIBRARIES AND NetCDF_Fortran_LIBRARIES AND
       NetCDF_C_INCLUDE_DIRS AND NetCDF_Fortran_INCLUDE_DIRS)
