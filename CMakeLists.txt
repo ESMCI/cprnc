@@ -88,17 +88,32 @@ if (NetCDF_FOUND)
     set(CPRNC_NETCDF_FORTRAN_LIB netcdf_cprnc)
   endif()
 else ()
-  message(STATUS "NetCDF was not found, falling back on pkg-config")
-  find_package(PkgConfig REQUIRED)
+  # If netcdf is not installed as a CMake pkg, the find_package above will fail,
+  # but netcdf may still be installed in the <PackageName>_ROOT folders
+  find_library(NetCDF_C_LIBRARIES netcdf HINTS ${NetCDF_C_ROOT} PATH_SUFFIXES lib lib64)
+  find_library(NetCDF_Fortran_LIBRARIES netcdff HINTS ${NetCDF_Fortran_ROOT} PATH_SUFFIXES lib lib64)
+  find_path(NetCDF_C_INCLUDE_DIRS netcdf.h HINTS ${NetCDF_C_ROOT} PATH_SUFFIXES include)
+  find_path(NetCDF_Fortran_INCLUDE_DIRS netcdf.mod HINTS ${NetCDF_Fortran_ROOT} PATH_SUFFIXES include)
 
-  #===== NetCDF =====
-  pkg_check_modules(NetCDF REQUIRED IMPORTED_TARGET netcdf)
+  if (NetCDF_C_LIBRARIES AND NetCDF_Fortran_LIBRARIES AND
+      NetCDF_C_INCLUDE_DIRS AND NetCDF_Fortran_INCLUDE_DIRS)
+    add_library(netcdf_cprnc INTERFACE)
+    target_link_libraries(netcdf_cprnc INTERFACE ${NetCDF_Fortran_LIBRARIES};${NetCDF_C_LIBRARIES})
+    target_include_directories(netcdf_cprnc INTERFACE ${NetCDF_Fortran_INCLUDE_DIRS};${NetCDF_C_INCLUDE_DIRS})
+    set(CPRNC_NETCDF_FORTRAN_LIB netcdf_cprnc)
+  else()
+    message(STATUS "NetCDF was not found, falling back on pkg-config")
+    find_package(PkgConfig REQUIRED)
 
-  #===== NetCDF-Fortran =====
-  pkg_check_modules(NetCDF_Fortran REQUIRED IMPORTED_TARGET netcdf-fortran)
+    #===== NetCDF =====
+    pkg_check_modules(NetCDF REQUIRED IMPORTED_TARGET netcdf)
 
-  set(CPRNC_NETCDF_FORTRAN_LIB PkgConfig::NetCDF_Fortran)
-  set(CPRNC_NETCDF_C_LIB       PkgConfig::NetCDF)
+    #===== NetCDF-Fortran =====
+    pkg_check_modules(NetCDF_Fortran REQUIRED IMPORTED_TARGET netcdf-fortran)
+
+    set(CPRNC_NETCDF_FORTRAN_LIB PkgConfig::NetCDF_Fortran)
+    set(CPRNC_NETCDF_C_LIB       PkgConfig::NetCDF)
+  endif()
 endif()
 
 add_executable (cprnc ${CPRNC_Fortran_SRCS} ${CPRNC_GenF90_SRCS})
