@@ -19,7 +19,7 @@ mkdir bld
 cd bld
 cmake ../
 
-This should be suffiecient if netcdf-fortran and the compiler that
+This should be sufficient if netcdf-fortran and the compiler that
 library was built with are in the path.
 
 Finally, put the resulting executable in CCSM_CPRNC as defined in
