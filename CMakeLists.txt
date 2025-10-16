@@ -76,7 +76,7 @@ endforeach ()
 
 # Try to find NetCDF dependency. Try standard find_package first.
 find_package(NetCDF QUIET COMPONENTS C Fortran)
-if (NetCDF_FOUND)
+if (NetCDF_C_FOUND AND NetCDF_Fortran_FOUND)
   if(TARGET NetCDF::NetCDF_Fortran)
     set(CPRNC_NETCDF_FORTRAN_LIB NetCDF::NetCDF_Fortran)
     set(CPRNC_NETCDF_C_LIB       NetCDF::NetCDF_C)
