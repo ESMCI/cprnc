@@ -13,11 +13,13 @@ Quick Start Guide:
 ------------------
 
 cprnc uses cmake and requires netcdf-fortran.  It is a serial program and must
-use a serial build of the netcdf-fortran library.  To build
+use a serial build of the netcdf-fortran library.  To build:
+```shell
 cd cprnc
 mkdir bld
 cd bld
 cmake ../
+```
 
 This should be sufficient if netcdf-fortran and the compiler that
 library was built with are in the path.
@@ -25,14 +27,14 @@ library was built with are in the path.
 Finally, put the resulting executable in CCSM_CPRNC as defined in
 config_machines.xml.
 
-
+```
  Usage: cprnc  [-v] [-d dimname:start[:count]] file1 [file2]
  -m: Compare each time sample. Default is false, i.e. match "time"
      coordinate values before comparing
  -v: Verbose output
  -d dimname:start[:count]
      Print variable values for the specified dimname index subrange.
-
+```
 
 Users Guide:
 ------------
@@ -179,7 +181,7 @@ The unlimited dimension is treated uniquely.  In general, for files
 that have a dimension named "time", the time axes are compared
 and matching time values on the two files are compared one
 timestep at a time.  Time values that don't match are skipped.
-To override the matching behaviour, use cprnc -m.  In this mode,
+To override the matching behaviour, use `cprnc -m`.  In this mode,
 timestamps are compared in indexical space.  In analyze mode,
 the fields are analyzed one timestamp at a time.  In general,
 if there is a "time" axis, it will be the outer-most loop in
@@ -188,4 +190,4 @@ and a timestamp that are not common between the two files are
 ignored.
 
 It is also possible to compare files that don't have an unlimited
-dimension; in this case, the '-m' flag must be given.
+dimension; in this case, the `-m` flag must be given.
