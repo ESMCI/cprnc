@@ -19,6 +19,7 @@ cd cprnc
 mkdir bld
 cd bld
 cmake ../
+make
 ```
 
 This should be sufficient if netcdf-fortran and the compiler that
