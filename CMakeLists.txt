@@ -2,6 +2,32 @@ cmake_minimum_required (VERSION 3.14)
 
 if (NOT DEFINED PROJECT_NAME)
   set(CPRNC_STANDALONE TRUE)
+
+  # When cprnc is configured directly by CIME (see
+  # CIME/build_scripts/buildlib.cprnc), a Macros.cmake defining SFC/MPIFC
+  # (among other things) is dropped into CMAKE_BINARY_DIR before this
+  # CMakeLists.txt is processed. CMAKE_Fortran_COMPILER/CMAKE_C_COMPILER
+  # must be set from those variables *before* the project() call below,
+  # otherwise CMake falls back to its own default Fortran compiler search
+  # (which tries the bare name "f95" first), potentially picking up an
+  # unrelated system Fortran compiler instead of the one CIME configured
+  # for this machine/compiler (e.g. a stray /usr/bin/f95 built against a
+  # different netcdf.mod ABI than the intended toolchain).
+  if (EXISTS ${CMAKE_BINARY_DIR}/Macros.cmake)
+    # CIME_initial_setup (below) includes Macros.cmake -- and therefore the
+    # machine's compiler-specific *.cmake file (e.g. gnu.cmake) -- before
+    # project() has run. Some of those files key off CMAKE_SYSTEM_PROCESSOR
+    # (e.g. to select -mcmodel on aarch64), which CMake only populates once
+    # project() has detected the toolchain. Pre-populate it here from `uname
+    # -m` so those checks see the real architecture even at this early point,
+    # without needing any special-casing in the shared machine cmake files.
+    if (NOT CMAKE_SYSTEM_PROCESSOR)
+      execute_process(COMMAND uname -m OUTPUT_VARIABLE CMAKE_SYSTEM_PROCESSOR
+        OUTPUT_STRIP_TRAILING_WHITESPACE)
+    endif()
+    list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../src/CMake)
+    include(CIME_initial_setup)
+  endif()
 endif()
 
 project (cprnc Fortran C)
