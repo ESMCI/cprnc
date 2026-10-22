@@ -20,7 +20,7 @@ module compare_vars_mod
 contains
 
   subroutine compare_vars(n,file, vtotal, ndiffs, nfilldiffs, vsizes_differ, &
-       vnot_analyzed, vtypes_differ )
+       vnot_analyzed, vtypes_differ, diff_field_names )
     integer, intent(in) :: n       ! number of files to analyze (1 or 2)
     integer, intent(out) :: vtotal
     integer, intent(out) :: ndiffs     ! number of fields with differences (not counting fields that differ only in the fill pattern)
@@ -28,9 +28,11 @@ contains
     integer, intent(out) :: vsizes_differ
     integer, intent(out) :: vnot_analyzed
     integer, intent(out) :: vtypes_differ
-
+    character(len=*), allocatable, intent(out) :: diff_field_names(:)  ! names of fields with differences
 
     type(file_t) :: file(n)
+    character(len=256), allocatable :: temp_diff_names(:)
+    integer :: diff_count
     double precision, pointer :: time(:,:)
     double precision :: tdiff
     ! start by making sure that times match
@@ -48,6 +50,7 @@ contains
     vsizes_differ = 0
     vtypes_differ = 0
     vnot_analyzed = 0
+    diff_count = 0
 
     if(n==2 .and. .not.ignoretime) then
        ! NOTE(wjs, 2019-03-21) Most of the cprnc code allows the unlimited dimension to be
@@ -77,6 +80,10 @@ contains
     end if
 
     nvars = size(file(1)%var)
+
+    ! Allocate temporary array to store field names (max size = number of variables)
+    allocate(temp_diff_names(nvars))
+
     if (file(1)%has_unlimited_dim()) then
        udim => file(1)%dim(file(1)%unlimdimid)
     else
@@ -103,7 +110,8 @@ contains
                vsizes_differ=vsizes_differ, &
                vnot_analyzed=vnot_analyzed, &
                vtypes_differ=vtypes_differ, &
-               ndiffs=ndiffs, nfilldiffs=nfilldiffs)
+               ndiffs=ndiffs, nfilldiffs=nfilldiffs, &
+               temp_diff_names=temp_diff_names, diff_count=diff_count)
 
        end if
     end do
@@ -162,12 +170,22 @@ contains
                      vnot_analyzed=vnot_analyzed, &
                      vtypes_differ=vtypes_differ, &
                      ndiffs=ndiffs, nfilldiffs=nfilldiffs, &
+                     temp_diff_names=temp_diff_names, diff_count=diff_count, &
                      tindex=(/t1, t2/))
 
              end if
           end do
        end do
     end if     ! if (file(1)%has_unlimited_dim())
+
+    ! Copy collected field names to output array
+    if (diff_count > 0) then
+       allocate(diff_field_names(diff_count))
+       diff_field_names(1:diff_count) = temp_diff_names(1:diff_count)
+    else
+       allocate(diff_field_names(0))
+    end if
+    deallocate(temp_diff_names)
 
 140 format(1x,a,3x,a)
 145 format(1x,a,3x,a,'  t_index = ',2i6)
@@ -180,6 +198,7 @@ contains
   subroutine compare_one_var(v1, numcases, file, varnum, &
                              vsizes_differ, vnot_analyzed, vtypes_differ, &
                              ndiffs, nfilldiffs, &
+                             temp_diff_names, diff_count, &
                              tindex)
     type(var_t) , intent(in) :: v1             ! variable info for the variable in file 1
     integer     , intent(in) :: numcases
@@ -190,9 +209,12 @@ contains
     integer  , intent(inout) :: vtypes_differ
     integer  , intent(inout) :: ndiffs
     integer  , intent(inout) :: nfilldiffs
+    character(len=*), intent(inout) :: temp_diff_names(:)
+    integer  , intent(inout) :: diff_count
     integer     , intent(in), optional :: tindex(numcases)
 
     integer :: idiff, ifilldiff, isizes_differ, inot_analyzed, itypes_differ
+    integer :: ndiffs_before
 
     ! initialize output arguments of compare_var in case compare_var doesn't get called
     idiff = 0
@@ -200,6 +222,9 @@ contains
     isizes_differ = 0
     itypes_differ = 0
     inot_analyzed = 0
+
+    ! Track ndiffs before comparison to detect if this variable has differences
+    ndiffs_before = ndiffs
 
     select case(v1%xtype)
     case(nf90_int)
@@ -226,6 +251,12 @@ contains
     vnot_analyzed = vnot_analyzed+inot_analyzed
     ndiffs = ndiffs+idiff
     nfilldiffs = nfilldiffs + ifilldiff
+
+    ! If this variable had differences, add its name to the list
+    if (ndiffs > ndiffs_before) then
+       diff_count = diff_count + 1
+       temp_diff_names(diff_count) = trim(v1%name)
+    end if
   end subroutine compare_one_var
 
 

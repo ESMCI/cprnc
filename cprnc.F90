@@ -18,6 +18,7 @@ program piocprnc
   type(dim_t) :: dimoptions(12)
   integer :: dimoptioncnt
   integer :: nvars, ndiffs, nfilldiffs
+  character(len=256), allocatable :: diff_field_names(:)
 
   ! The following variables count the number of fields found on one file but not the
   ! other, only considering (a) fields with an unlimited (time) dimension, and (b) fields
@@ -112,7 +113,7 @@ program piocprnc
            num_not_found_on_file2_timeconst = num_not_found_on_file2_timeconst)
    end if
    call compare_vars(numcases, file, nvars, ndiffs, nfilldiffs, &
-        num_sizes_differ, num_not_analyzed, num_types_differ)
+        num_sizes_differ, num_not_analyzed, num_types_differ, diff_field_names)
 
 
 !
@@ -128,6 +129,12 @@ program piocprnc
       else
          write(6,700) ' A total number of ',nvars,' fields were compared'
          write(6,700) '          of which ',ndiffs,' had non-zero differences'
+         if (ndiffs > 0) then
+            write(6,*) '   Fields with non-zero differences:'
+            do n = 1, size(diff_field_names)
+               write(6,'(a,i3,a,a)') '     ', n, ': ', trim(diff_field_names(n))
+            end do
+         end if
          write(6,700) '               and ',nfilldiffs,' had differences in fill patterns'
          write(6,700) '               and ',num_sizes_differ,' had different dimension sizes'
          write(6,700) '               and ',num_types_differ,' had different data types'
