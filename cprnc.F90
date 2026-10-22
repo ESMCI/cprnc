@@ -129,15 +129,23 @@ program piocprnc
       else
          write(6,700) ' A total number of ',nvars,' fields were compared'
          write(6,700) '          of which ',ndiffs,' had non-zero differences'
-         if (ndiffs > 0) then
-            write(6,*) '   Fields with non-zero differences:'
-            do n = 1, size(diff_field_names)
-               write(6,'(a,i3,a,a)') '     ', n, ': ', trim(diff_field_names(n))
-            end do
-         end if
          write(6,700) '               and ',nfilldiffs,' had differences in fill patterns'
          write(6,700) '               and ',num_sizes_differ,' had different dimension sizes'
          write(6,700) '               and ',num_types_differ,' had different data types'
+         if (size(diff_field_names) > 0) then
+            if (size(diff_field_names) == nvars) then
+               write(6,*) '   Fields with differences: All Fields'
+            else
+               write(6,'(a)', advance='no') '   Fields with differences: '
+               do n = 1, size(diff_field_names)
+                  if (n < size(diff_field_names)) then
+                     write(6,'(a,a)', advance='no') trim(diff_field_names(n)), ', '
+                  else
+                     write(6,'(a)') trim(diff_field_names(n))
+                  end if
+               end do
+            end if
+         end if
          write(6,700) ' A total number of ',num_sizes_differ + num_not_analyzed, &
               ' fields could not be analyzed'
 

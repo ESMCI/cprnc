@@ -252,8 +252,9 @@ contains
     ndiffs = ndiffs+idiff
     nfilldiffs = nfilldiffs + ifilldiff
 
-    ! If this variable had differences, add its name to the list
-    if (ndiffs > ndiffs_before) then
+    ! If this variable had any type of difference, add its name to the list
+    ! This includes: value differences, fill pattern differences, size differences, or type differences
+    if (idiff > 0 .or. ifilldiff > 0 .or. isizes_differ > 0 .or. itypes_differ > 0) then
        diff_count = diff_count + 1
        temp_diff_names(diff_count) = trim(v1%name)
     end if
