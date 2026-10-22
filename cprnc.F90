@@ -19,6 +19,9 @@ program piocprnc
   integer :: dimoptioncnt
   integer :: nvars, ndiffs, nfilldiffs
   character(len=256), allocatable :: diff_field_names(:)
+  character(len=256), allocatable :: filldiff_field_names(:)
+  character(len=256), allocatable :: sizediff_field_names(:)
+  character(len=256), allocatable :: typediff_field_names(:)
 
   ! The following variables count the number of fields found on one file but not the
   ! other, only considering (a) fields with an unlimited (time) dimension, and (b) fields
@@ -113,7 +116,8 @@ program piocprnc
            num_not_found_on_file2_timeconst = num_not_found_on_file2_timeconst)
    end if
    call compare_vars(numcases, file, nvars, ndiffs, nfilldiffs, &
-        num_sizes_differ, num_not_analyzed, num_types_differ, diff_field_names)
+        num_sizes_differ, num_not_analyzed, num_types_differ, diff_field_names, &
+        filldiff_field_names, sizediff_field_names, typediff_field_names)
 
 
 !
@@ -129,23 +133,13 @@ program piocprnc
       else
          write(6,700) ' A total number of ',nvars,' fields were compared'
          write(6,700) '          of which ',ndiffs,' had non-zero differences'
+         call print_diff_field_list(diff_field_names, nvars)
          write(6,700) '               and ',nfilldiffs,' had differences in fill patterns'
+         call print_diff_field_list(filldiff_field_names, nvars)
          write(6,700) '               and ',num_sizes_differ,' had different dimension sizes'
+         call print_diff_field_list(sizediff_field_names, nvars)
          write(6,700) '               and ',num_types_differ,' had different data types'
-         if (size(diff_field_names) > 0) then
-            if (size(diff_field_names) == nvars) then
-               write(6,*) '   Fields with differences: All Fields'
-            else
-               write(6,'(a)', advance='no') '   Fields with differences: '
-               do n = 1, size(diff_field_names)
-                  if (n < size(diff_field_names)) then
-                     write(6,'(a,a)', advance='no') trim(diff_field_names(n)), ', '
-                  else
-                     write(6,'(a)') trim(diff_field_names(n))
-                  end if
-               end do
-            end if
-         end if
+         call print_diff_field_list(typediff_field_names, nvars)
          write(6,700) ' A total number of ',num_sizes_differ + num_not_analyzed, &
               ' fields could not be analyzed'
 
@@ -323,5 +317,27 @@ program piocprnc
      end if
 
    end subroutine print_fields_not_found
+
+   subroutine print_diff_field_list(field_names, total_fields)
+     ! Print a list of field names, or "All Fields" if all fields differ
+     character(len=*), intent(in) :: field_names(:)
+     integer, intent(in) :: total_fields
+     integer :: i
+
+     if (size(field_names) > 0) then
+        if (size(field_names) == total_fields) then
+           write(6,'(a)') '                     Fields with differences: All Fields'
+        else
+           write(6,'(a)', advance='no') '                     Fields with differences: '
+           do i = 1, size(field_names)
+              if (i < size(field_names)) then
+                 write(6,'(a,a)', advance='no') trim(field_names(i)), ', '
+              else
+                 write(6,'(a)') trim(field_names(i))
+              end if
+           end do
+        end if
+     end if
+   end subroutine print_diff_field_list
 
  end program piocprnc
