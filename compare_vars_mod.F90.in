@@ -299,24 +299,33 @@ contains
     nfilldiffs = nfilldiffs + ifilldiff
 
     ! Add field name to the appropriate difference list(s)
+    ! Only add each variable name once per category (important for time-varying variables)
     if (idiff > 0) then
-       diff_count = diff_count + 1
-       temp_diff_names(diff_count) = trim(v1%name)
+       if (.not. is_in_list(trim(v1%name), temp_diff_names, diff_count)) then
+          diff_count = diff_count + 1
+          temp_diff_names(diff_count) = trim(v1%name)
+       end if
     end if
 
     if (ifilldiff > 0) then
-       filldiff_count = filldiff_count + 1
-       temp_filldiff_names(filldiff_count) = trim(v1%name)
+       if (.not. is_in_list(trim(v1%name), temp_filldiff_names, filldiff_count)) then
+          filldiff_count = filldiff_count + 1
+          temp_filldiff_names(filldiff_count) = trim(v1%name)
+       end if
     end if
 
     if (isizes_differ > 0) then
-       sizediff_count = sizediff_count + 1
-       temp_sizediff_names(sizediff_count) = trim(v1%name)
+       if (.not. is_in_list(trim(v1%name), temp_sizediff_names, sizediff_count)) then
+          sizediff_count = sizediff_count + 1
+          temp_sizediff_names(sizediff_count) = trim(v1%name)
+       end if
     end if
 
     if (itypes_differ > 0) then
-       typediff_count = typediff_count + 1
-       temp_typediff_names(typediff_count) = trim(v1%name)
+       if (.not. is_in_list(trim(v1%name), temp_typediff_names, typediff_count)) then
+          typediff_count = typediff_count + 1
+          temp_typediff_names(typediff_count) = trim(v1%name)
+       end if
     end if
   end subroutine compare_one_var
 
@@ -725,6 +734,21 @@ contains
 
   end function translate_loc
 
+  logical function is_in_list(name, list, list_size)
+    ! Check if a name is already in the list
+    character(len=*), intent(in) :: name
+    character(len=*), intent(in) :: list(:)
+    integer, intent(in) :: list_size
+    integer :: i
+
+    is_in_list = .false.
+    do i = 1, list_size
+       if (trim(list(i)) == trim(name)) then
+          is_in_list = .true.
+          return
+       end if
+    end do
+  end function is_in_list
 
 
 end module compare_vars_mod
