@@ -125,6 +125,32 @@ program piocprnc
 !
      write(6,806)
       write(6,*) ' '
+      if(numcases==2) then
+         ! Print field lists before the summary
+         if (size(diff_field_names) > 0) then
+            write(6,*) ' '
+            write(6,*) 'Fields with non-zero differences:'
+            call print_field_list_capped(diff_field_names, 10)
+         end if
+         if (size(filldiff_field_names) > 0) then
+            write(6,*) ' '
+            write(6,*) 'Fields with differences in fill patterns:'
+            call print_field_list_capped(filldiff_field_names, 10)
+         end if
+         if (size(sizediff_field_names) > 0) then
+            write(6,*) ' '
+            write(6,*) 'Fields with different dimension sizes:'
+            call print_field_list_capped(sizediff_field_names, 10)
+         end if
+         if (size(typediff_field_names) > 0) then
+            write(6,*) ' '
+            write(6,*) 'Fields with different data types:'
+            call print_field_list_capped(typediff_field_names, 10)
+         end if
+         write(6,*) ' '
+         write(6,806)
+         write(6,*) ' '
+      end if
       write(6,700) 'SUMMARY of cprnc:'
       if(numcases==1) then
          write(6,700) '  A total number of ',nvars,' fields in file 1 were analyzed (non-compare mode)'
@@ -133,13 +159,9 @@ program piocprnc
       else
          write(6,700) ' A total number of ',nvars,' fields were compared'
          write(6,700) '          of which ',ndiffs,' had non-zero differences'
-         call print_diff_field_list(diff_field_names, nvars)
          write(6,700) '               and ',nfilldiffs,' had differences in fill patterns'
-         call print_diff_field_list(filldiff_field_names, nvars)
          write(6,700) '               and ',num_sizes_differ,' had different dimension sizes'
-         call print_diff_field_list(sizediff_field_names, nvars)
          write(6,700) '               and ',num_types_differ,' had different data types'
-         call print_diff_field_list(typediff_field_names, nvars)
          write(6,700) ' A total number of ',num_sizes_differ + num_not_analyzed, &
               ' fields could not be analyzed'
 
@@ -318,26 +340,21 @@ program piocprnc
 
    end subroutine print_fields_not_found
 
-   subroutine print_diff_field_list(field_names, total_fields)
-     ! Print a list of field names, or "All Fields" if all fields differ
+   subroutine print_field_list_capped(field_names, max_fields)
+     ! Print a list of field names, capped at max_fields
      character(len=*), intent(in) :: field_names(:)
-     integer, intent(in) :: total_fields
-     integer :: i
+     integer, intent(in) :: max_fields
+     integer :: i, num_to_print
 
      if (size(field_names) > 0) then
-        if (size(field_names) == total_fields) then
-           write(6,'(a)') '                     Fields with differences: All Fields'
-        else
-           write(6,'(a)', advance='no') '                     Fields with differences: '
-           do i = 1, size(field_names)
-              if (i < size(field_names)) then
-                 write(6,'(a,a)', advance='no') trim(field_names(i)), ', '
-              else
-                 write(6,'(a)') trim(field_names(i))
-              end if
-           end do
+        num_to_print = min(size(field_names), max_fields)
+        do i = 1, num_to_print
+           write(6,'(a,a)') '  ', trim(field_names(i))
+        end do
+        if (size(field_names) > max_fields) then
+           write(6,'(a,i0,a)') '  ... and ', size(field_names) - max_fields, ' more'
         end if
      end if
-   end subroutine print_diff_field_list
+   end subroutine print_field_list_capped
 
  end program piocprnc
