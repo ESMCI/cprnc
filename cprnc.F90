@@ -127,29 +127,40 @@ program piocprnc
       write(6,*) ' '
       if(numcases==2) then
          ! Print field lists before the summary
-         if (size(diff_field_names) > 0) then
-            write(6,*) ' '
-            write(6,*) 'Fields with non-zero differences:'
-            call print_field_list_capped(diff_field_names, 10)
+         if (allocated(diff_field_names)) then
+            if (size(diff_field_names) > 0) then
+               write(6,*) ' '
+               write(6,*) 'Fields with non-zero differences:'
+               call print_field_list_capped(diff_field_names, 10)
+            end if
          end if
-         if (size(filldiff_field_names) > 0) then
-            write(6,*) ' '
-            write(6,*) 'Fields with differences in fill patterns:'
-            call print_field_list_capped(filldiff_field_names, 10)
+         if (allocated(filldiff_field_names)) then
+            if (size(filldiff_field_names) > 0) then
+               write(6,*) ' '
+               write(6,*) 'Fields with differences in fill patterns:'
+               call print_field_list_capped(filldiff_field_names, 10)
+            end if
          end if
-         if (size(sizediff_field_names) > 0) then
-            write(6,*) ' '
-            write(6,*) 'Fields with different dimension sizes:'
-            call print_field_list_capped(sizediff_field_names, 10)
+         if (allocated(sizediff_field_names)) then
+            if (size(sizediff_field_names) > 0) then
+               write(6,*) ' '
+               write(6,*) 'Fields with different dimension sizes:'
+               call print_field_list_capped(sizediff_field_names, 10)
+            end if
          end if
-         if (size(typediff_field_names) > 0) then
-            write(6,*) ' '
-            write(6,*) 'Fields with different data types:'
-            call print_field_list_capped(typediff_field_names, 10)
+         if (allocated(typediff_field_names)) then
+            if (size(typediff_field_names) > 0) then
+               write(6,*) ' '
+               write(6,*) 'Fields with different data types:'
+               call print_field_list_capped(typediff_field_names, 10)
+            end if
          end if
-         write(6,*) ' '
-         write(6,806)
-         write(6,*) ' '
+         if (allocated(diff_field_names) .or. allocated(filldiff_field_names) .or. &
+             allocated(sizediff_field_names) .or. allocated(typediff_field_names)) then
+            write(6,*) ' '
+            write(6,806)
+            write(6,*) ' '
+         end if
       end if
       write(6,700) 'SUMMARY of cprnc:'
       if(numcases==1) then
@@ -342,17 +353,20 @@ program piocprnc
 
    subroutine print_field_list_capped(field_names, max_fields)
      ! Print a list of field names, capped at max_fields
-     character(len=*), intent(in) :: field_names(:)
+     character(len=*), allocatable, intent(in) :: field_names(:)
      integer, intent(in) :: max_fields
      integer :: i, num_to_print
 
-     if (size(field_names) > 0) then
-        num_to_print = min(size(field_names), max_fields)
-        do i = 1, num_to_print
-           write(6,'(a,a)') '  ', trim(field_names(i))
-        end do
-        if (size(field_names) > max_fields) then
-           write(6,'(a,i0,a)') '  ... and ', size(field_names) - max_fields, ' more'
+     ! Check allocation status before using the array
+     if (allocated(field_names)) then
+        if (size(field_names) > 0) then
+           num_to_print = min(size(field_names), max_fields)
+           do i = 1, num_to_print
+              write(6,'(a,a)') '  ', trim(field_names(i))
+           end do
+           if (size(field_names) > max_fields) then
+              write(6,'(a,i0,a)') '  ... and ', size(field_names) - max_fields, ' more'
+           end if
         end if
      end if
    end subroutine print_field_list_capped
