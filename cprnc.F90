@@ -18,6 +18,10 @@ program piocprnc
   type(dim_t) :: dimoptions(12)
   integer :: dimoptioncnt
   integer :: nvars, ndiffs, nfilldiffs
+  character(len=256), allocatable :: diff_field_names(:)
+  character(len=256), allocatable :: filldiff_field_names(:)
+  character(len=256), allocatable :: sizediff_field_names(:)
+  character(len=256), allocatable :: typediff_field_names(:)
 
   ! The following variables count the number of fields found on one file but not the
   ! other, only considering (a) fields with an unlimited (time) dimension, and (b) fields
@@ -112,7 +116,8 @@ program piocprnc
            num_not_found_on_file2_timeconst = num_not_found_on_file2_timeconst)
    end if
    call compare_vars(numcases, file, nvars, ndiffs, nfilldiffs, &
-        num_sizes_differ, num_not_analyzed, num_types_differ)
+        num_sizes_differ, num_not_analyzed, num_types_differ, diff_field_names, &
+        filldiff_field_names, sizediff_field_names, typediff_field_names)
 
 
 !
@@ -120,6 +125,43 @@ program piocprnc
 !
      write(6,806)
       write(6,*) ' '
+      if(numcases==2) then
+         ! Print field lists before the summary
+         if (allocated(diff_field_names)) then
+            if (size(diff_field_names) > 0) then
+               write(6,*) ' '
+               write(6,*) 'Fields with non-zero differences:'
+               call print_field_list_capped(diff_field_names, 10)
+            end if
+         end if
+         if (allocated(filldiff_field_names)) then
+            if (size(filldiff_field_names) > 0) then
+               write(6,*) ' '
+               write(6,*) 'Fields with differences in fill patterns:'
+               call print_field_list_capped(filldiff_field_names, 10)
+            end if
+         end if
+         if (allocated(sizediff_field_names)) then
+            if (size(sizediff_field_names) > 0) then
+               write(6,*) ' '
+               write(6,*) 'Fields with different dimension sizes:'
+               call print_field_list_capped(sizediff_field_names, 10)
+            end if
+         end if
+         if (allocated(typediff_field_names)) then
+            if (size(typediff_field_names) > 0) then
+               write(6,*) ' '
+               write(6,*) 'Fields with different data types:'
+               call print_field_list_capped(typediff_field_names, 10)
+            end if
+         end if
+         if (allocated(diff_field_names) .or. allocated(filldiff_field_names) .or. &
+             allocated(sizediff_field_names) .or. allocated(typediff_field_names)) then
+            write(6,*) ' '
+            write(6,806)
+            write(6,*) ' '
+         end if
+      end if
       write(6,700) 'SUMMARY of cprnc:'
       if(numcases==1) then
          write(6,700) '  A total number of ',nvars,' fields in file 1 were analyzed (non-compare mode)'
@@ -308,5 +350,25 @@ program piocprnc
      end if
 
    end subroutine print_fields_not_found
+
+   subroutine print_field_list_capped(field_names, max_fields)
+     ! Print a list of field names, capped at max_fields
+     character(len=*), allocatable, intent(in) :: field_names(:)
+     integer, intent(in) :: max_fields
+     integer :: i, num_to_print
+
+     ! Check allocation status before using the array
+     if (allocated(field_names)) then
+        if (size(field_names) > 0) then
+           num_to_print = min(size(field_names), max_fields)
+           do i = 1, num_to_print
+              write(6,'(a,a)') '  ', trim(field_names(i))
+           end do
+           if (size(field_names) > max_fields) then
+              write(6,'(a,i0,a)') '  ... and ', size(field_names) - max_fields, ' more'
+           end if
+        end if
+     end if
+   end subroutine print_field_list_capped
 
  end program piocprnc
