@@ -358,6 +358,7 @@ contains
 
     compare2 = (n==2 .and. vid(2)>0)
     ifail = 0
+    itypes = 0
     ifilldiff = 0
     idiff = 0
     s1 = vdimsize(file(1)%dim, file(1)%var(vid(1))%dimids)
