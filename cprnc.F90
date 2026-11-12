@@ -162,9 +162,12 @@ program piocprnc
             write(6,*) 'Fields with different data types:'
             call print_field_list_capped(typediff_field_names, num_typediff_fields)
          end if
-         write(6,*) ' '
-         write(6,806)
-         write(6,*) ' '
+         if (num_diff_fields > 0 .or. num_filldiff_fields > 0 .or. &
+             num_sizediff_fields > 0 .or. num_typediff_fields > 0) then
+            write(6,*) ' '
+            write(6,806)
+            write(6,*) ' '
+         end if
       end if
       write(6,700) 'SUMMARY of cprnc:'
       if(numcases==1) then
