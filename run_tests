@@ -34,6 +34,7 @@ my %tests = ('copy.nc' => {control => 'control.nc'},
 
              'multipleTimes_someTimeless_diffs_in_vals_and_fill.nc' => {control => 'control_multipleTimes_someTimeless.nc'},
              'multipleTimes_someTimeless_extra_and_missing.nc' => {control => 'control_multipleTimes_someTimeless.nc'},
+             'multipleTimes_someTimeless_diffs_in_multiple_times.nc' => {control => 'control_multipleTimes_someTimeless.nc'},
 
              'noTime_diffs_in_vals_and_fill.nc' => {control => 'control_noTime.nc',
                                                     extra_args => '-m'},
@@ -42,6 +43,8 @@ my %tests = ('copy.nc' => {control => 'control.nc'},
 
              'diffs_0d.nc' => {control => 'control_0d.nc',
                                extra_args => '-m'},
+
+             'manyVars_diffs_in_vals.nc' => {control => 'control_manyVars.nc'},
 
              'cpl.hi.subset.test.nc' => {control => 'cpl.hi.subset.control.nc'},
              'clm2.h0.subset.test.nc' => {control => 'clm2.h0.subset.control.nc'},
