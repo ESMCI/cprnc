@@ -117,6 +117,15 @@ with time first.
   without an unlimited dimension (in a file that has an unlimited
   dimension).
 
+- multipleTimes_someTimeless_diffs_in_multiple_times.nc: two variables
+  with a time dimension differ in more than one time slice: testvar has
+  differences in both values and fill pattern in times 1 and 3, and
+  testvar2 has differences in values in times 2 and 3. Purpose of this
+  test is to make sure that each variable appears only once in the
+  lists of fields with differences that are printed before the summary
+  (even though the summary counts differences in each time slice
+  separately).
+
 --- FILES COMPARED AGAINST control_noTime.nc ---
 
 Note: This file has no time (unlimited) dimension.
@@ -134,6 +143,17 @@ Note: This file has no time (unlimited) dimension.
 Note: This file has two 0-d variables
 
 - diffs_0d.nc: diffs in both 0-d variables (int & real)
+
+--- FILES COMPARED AGAINST control_manyVars.nc ---
+
+Note: This file has 13 time-varying variables (testvar01 - testvar13),
+each with a single time slice.
+
+- manyVars_diffs_in_vals.nc: 12 of the 13 variables have differences in
+  values (all except testvar07). Purpose of this test is to make sure
+  that the list of fields with differences printed before the summary
+  is capped at 10 fields (testvar01 - testvar06 and testvar08 -
+  testvar11), followed by a line saying that there are 2 more.
 
 
 --- FILES COMPARED AGAINST cpl.hi.subset.control.nc ---
